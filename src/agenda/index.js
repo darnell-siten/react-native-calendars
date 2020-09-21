@@ -60,6 +60,7 @@ export default class AgendaView extends Component {
     renderEmptyData: PropTypes.func,
     /** specify your item comparison function for increased performance */
     rowHasChanged: PropTypes.func,
+    shouldChangeDay: PropTypes.func,
     /** Max amount of months allowed to scroll to the past. Default = 50 */
     pastScrollRange: PropTypes.number,
     /** Max amount of months allowed to scroll to the future. Default = 50 */
@@ -95,7 +96,9 @@ export default class AgendaView extends Component {
     /** Called when the momentum scroll starts for the agenda list. **/
     onMomentumScrollBegin: PropTypes.func,
     /** Called when the momentum scroll stops for the agenda list. **/
-    onMomentumScrollEnd: PropTypes.func
+    onMomentumScrollEnd: PropTypes.func,
+    // show Only Day Selected. Default = false
+    showOnlyDaySelected: PropTypes.bool,
   };
 
   constructor(props) {
@@ -271,6 +274,9 @@ export default class AgendaView extends Component {
   }
 
   chooseDay(d, optimisticScroll) {
+    if(!this.props.shouldChangeDay(d)){
+        return;
+      }
     const day = parseDate(d);
 
     this.setState({
@@ -321,12 +327,16 @@ export default class AgendaView extends Component {
         onDayChange={this.onDayChange.bind(this)}
         onScroll={() => { }}
         ref={(c) => this.list = c}
+        showOnlyDaySelected={this.props.showOnlyDaySelected}
         theme={this.props.theme}
       />
     );
   }
 
   onDayChange(day) {
+    if(!this.props.shouldChangeDay(day)){
+        return;
+      }
     const newDate = parseDate(day);
     const withAnimation = dateutils.sameMonth(newDate, this.state.selectedDay);
 
